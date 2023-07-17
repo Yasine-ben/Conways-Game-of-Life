@@ -50,7 +50,7 @@ function App() {
 
       return () => clearInterval(interval);
     }
-  }, [gameStart, speed]);
+  }, [gameStart]);
 
   const computeNextGeneration = (currentGrid) => {
     let newGrid = []
@@ -109,25 +109,35 @@ function App() {
   // console.table(grid)
 
   return (
-    <div className="grid">
-      {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className="row">
-          {row.map((col, colIndex) => (
-            <div
-              key={colIndex}
-              className="block"
-              style={{
-                width: '10px',
-                height: '10px',
-                backgroundColor: col === 0 ? 'black' : 'white',
-              }}
-              onClick={() => !gameStart ? handleBlockClick(rowIndex, colIndex) : null}
-            ></div>
-          ))}
+    <div className='body'>
+      <div className="grid">
+        {grid.map((row, rowIndex) => (
+          <div key={rowIndex} className="row">
+            {row.map((col, colIndex) => (
+              <div
+                key={colIndex}
+                className="block"
+                style={{
+                  width: '10px',
+                  height: '10px',
+                  backgroundColor: col === 1 ? 'black' : 'white',
+                }}
+                onClick={() => !gameStart ? handleBlockClick(rowIndex, colIndex) : null}
+              ></div>
+            ))}
+          </div>
+        ))}
+        <div className='controller-wrapper'>
+          <div className='slider-wrapper'>Speed
+            <input type='range' className='computationSpeedSlider' min={1} max={10} value={speed} onChange={(e) => { setSpeed(e.target.value) }} />
+          </div>
+          <div className='buttons-wrapper'>
+            <button className='ClearGrid'>clear</button>
+            <button className='GameStartButton' onClick={() => handleGameStart()}>{gameStart === true ? 'stop' : 'start'}</button>
+          </div>
         </div>
-      ))}
-      <input type='range' className='computationSpeedSlider' min={1} max={10} value={speed} onChange={(e) => { setSpeed(e.target.value) }} />
-      <button className='GameStartButton' onClick={() => handleGameStart()}>{gameStart === true ? 'stop' : 'start'}</button>
+      </div>
+
     </div>
   );
 }
