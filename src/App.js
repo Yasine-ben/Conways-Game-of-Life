@@ -21,7 +21,7 @@ function App() {
     return grid;
   }
 
-  const [grid,setGrid] = useState(() => createGrid(top,down))
+  const [grid, setGrid] = useState(() => createGrid(top, down))
   const [gameStart, setGameStart] = useState(false)
 
 
@@ -34,10 +34,10 @@ function App() {
     setGrid(newGrid); // Update the state with the new grid
   };
 
-  function handleGameStart(){
-    if(!gameStart){
+  function handleGameStart() {
+    if (!gameStart) {
       setGameStart(true)
-    }else{
+    } else {
       setGameStart(false)
     }
   }
@@ -46,23 +46,23 @@ function App() {
     if (gameStart) {
       const interval = setInterval(() => {
         setGrid((prevGrid) => computeNextGeneration(prevGrid));
-      }, speed);
+      }, (speed * 40));
 
       return () => clearInterval(interval);
     }
-  }, [gameStart,speed]);
+  }, [gameStart, speed]);
 
   const computeNextGeneration = (currentGrid) => {
     let newGrid = []
-    for (let row = 0; row < down; row++){
+    for (let row = 0; row < down; row++) {
       let newRow = [];
-      for(let col = 0; col < top; col++){
+      for (let col = 0; col < top; col++) {
         let currCell = currentGrid[row][col];
         const neightbors = countLiveNeighbors(currentGrid, row, col);
         let newCell = 0
-        if(currCell === 1  && (neightbors === 2 || neightbors === 4) ){
+        if (currCell === 1 && (neightbors === 2 || neightbors === 3)) {
           newCell = 1
-        }else if(currCell === 0 && neightbors === 3){
+        } else if (currCell === 0 && neightbors === 3) {
           newCell = 1
         }
         newRow.push(newCell)
@@ -74,48 +74,39 @@ function App() {
 
   const countLiveNeighbors = (currentGrid, row, col) => {
     const directions = [
-      [-1,-1],  // top left   
-      [-1, 0],  // top
-      [-1 ,1],  // top right
-      [0, -1],  // left 
-      [0 , 1],  // right
-      [1 ,-1],  // bottom left
-      [1 , 0],  // bottom 
-      [1,  1],  // bottom right
-    ]
+      [-1, -1], // top left
+      [-1, 0], // top
+      [-1, 1], // top right
+      [0, -1], // left
+      [0, 1], // right
+      [1, -1], // bottom left
+      [1, 0], // bottom
+      [1, 1], // bottom right
+    ];
 
-    let neighborCount = 0
+    let neighborCount = 0;
 
-    for(let i=0; i<directions.length; i++){ 
-      const [dx,dy] = directions[i]
-      const newRow = row + dx
-      const newCol = col + dy
-      if(
-        newCol >= 0    &&
-        newCol < top  &&
-        newRow >= 0    && 
-        newRow < down  &&
-        currentGrid[newRow][newCol] === 1
-      ){
-        neighborCount++
+    for (let i = 0; i < directions.length; i++) {
+      const [dx, dy] = directions[i];
+      let newRow = row + dx;
+      let newCol = col + dy;
+
+      // Wrap around if the neighbor is out of bounds
+      if (newRow < 0) newRow = down - 1;
+      if (newRow >= down) newRow = 0;
+      if (newCol < 0) newCol = top - 1;
+      if (newCol >= top) newCol = 0;
+
+      if (currentGrid[newRow][newCol] === 1) {
+        neighborCount++;
       }
     }
-    return neighborCount
-  }
 
-  function updateValue(range,currentValue) {
-    // Get the maximum and minimum values of the range
-    let max = range[0]
-    let min = range[1]
+    return neighborCount;
+  };
 
-    // Calculate the inverse scale
-    let inverseValue = max - (currentValue - min);
-  
-    // Update the displayed value
-    return inverseValue
-  }
 
-  console.table(grid)
+  // console.table(grid)
 
   return (
     <div className="grid">
@@ -130,13 +121,13 @@ function App() {
                 height: '10px',
                 backgroundColor: col === 0 ? 'black' : 'white',
               }}
-              onClick={() =>!gameStart ?  handleBlockClick(rowIndex, colIndex) : null}
+              onClick={() => !gameStart ? handleBlockClick(rowIndex, colIndex) : null}
             ></div>
           ))}
         </div>
       ))}
-      <input type='range' className='computationSpeedSlider' min={10} max={1000} value={speed} onChange={(e) => setSpeed(e.target.value)}/>
-      <button className='GameStartButton' onClick={() => handleGameStart()}>{gameStart === true ? 'stop' : 'start' }</button>
+      <input type='range' className='computationSpeedSlider' min={1} max={10} value={speed} onChange={(e) => { setSpeed(e.target.value) }} />
+      <button className='GameStartButton' onClick={() => handleGameStart()}>{gameStart === true ? 'stop' : 'start'}</button>
     </div>
   );
 }
