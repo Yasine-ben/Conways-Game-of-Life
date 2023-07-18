@@ -153,7 +153,8 @@ function App() {
     updateFPS();
     updateLivingCells();
   }, [updateFPS, updateLivingCells]);
-  console.log(speed)
+
+  
   return (
     <div className="body">
       <div className="grid">
