@@ -99,3 +99,7 @@ body{
 .living-cells-counter{
   color:white;
 }
+
+#transparentVideo{
+  width: 500px;
+}

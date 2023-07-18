@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import produce from 'immer';
+import video from './video.webm'
 
 const directions = [
   [-1, -1], // top left
@@ -131,7 +132,7 @@ function App() {
   }, [countLiveNeighbors, down, top]);
 
   const updateFPS = useCallback(() => {
-    fpsRef.current = Math.round(1000 / (speed * 40));
+    fpsRef.current = Math.round((speed));
   }, [speed]);
 
   const updateLivingCells = useCallback(() => {
@@ -143,7 +144,7 @@ function App() {
       if (gameStart) {
         setGrid((prevGrid) => computeNextGeneration(prevGrid));
       }
-    }, speed * 40);
+    }, (1000 / speed));
 
     return () => clearInterval(interval);
   }, [computeNextGeneration, gameStart, speed]);
@@ -152,7 +153,7 @@ function App() {
     updateFPS();
     updateLivingCells();
   }, [updateFPS, updateLivingCells]);
-
+  console.log(speed)
   return (
     <div className="body">
       <div className="grid">
@@ -179,9 +180,9 @@ function App() {
               type="range"
               className="computationSpeedSlider"
               min={1}
-              max={10}
-              value={11 - speed}
-              onChange={(e) => setSpeed(11 - parseInt(e.target.value))}
+              max={25}
+              value={speed}
+              onChange={(e) => setSpeed(parseInt(e.target.value))}
             />
           </div>
           <div className="info-wrapper">
@@ -199,7 +200,10 @@ function App() {
               {gameStart ? 'Stop' : 'Start'}
             </button>
           </div>
+          
         </div>
+        <video id="transparentVideo" autoPlay loop src={video} muted>
+        </video>
       </div>
     </div>
   );
