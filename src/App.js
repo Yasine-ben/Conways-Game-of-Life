@@ -20,6 +20,19 @@ const gliderPattern = [
   [1, 1, 1],
 ];
 
+const LWSS = [
+
+]
+
+const MWSS = [
+
+]
+
+const HWSS = [
+
+]
+
+
 const App = () => {
   const top = 60;
   const down = 50;
