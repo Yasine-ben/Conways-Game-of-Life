@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import produce from 'immer';
-import video from './video.webm'
+import video from './video.webm';
 
 const directions = [
   [-1, -1], // top left
@@ -14,10 +14,18 @@ const directions = [
   [1, 1], // bottom right
 ];
 
-function App() {
+const gliderPattern = [
+  [0, 1, 0],
+  [0, 0, 1],
+  [1, 1, 1],
+];
+
+const App = () => {
   const top = 60;
   const down = 50;
   const initialSpeed = 5;
+
+  const [selectedOption, setSelectedOption] = useState('Default');
 
   const countLiveNeighbors = useCallback((currentGrid, row, col) => {
     let neighborCount = 0;
@@ -58,6 +66,8 @@ function App() {
   const [speed, setSpeed] = useState(initialSpeed);
   const [grid, setGrid] = useState(() => createGrid(top, down));
   const [gameStart, setGameStart] = useState(false);
+  const [gliderPreviewRow, setGliderPreviewRow] = useState(null);
+  const [gliderPreviewCol, setGliderPreviewCol] = useState(null);
 
   const fpsRef = useRef(0);
   const livingCellsRef = useRef(0);
@@ -79,9 +89,27 @@ function App() {
   const handleBlockClick = (rowIndex, colIndex) => {
     if (!gameStart) {
       const newGrid = produce(grid, (draftGrid) => {
-        draftGrid[rowIndex][colIndex] = 1 - draftGrid[rowIndex][colIndex];
+        for (let i = 0; i < gliderPattern.length; i++) {
+          for (let j = 0; j < gliderPattern[i].length; j++) {
+            draftGrid[rowIndex + i][colIndex + j] = selectedOption === 'Glider' ? gliderPattern[i][j] : 1 - draftGrid[rowIndex + i][colIndex + j];
+          }
+        }
       });
       setGrid(newGrid);
+    }
+  };
+
+  const handleBlockHover = (rowIndex, colIndex) => {
+    if (!gameStart) {
+      setGliderPreviewRow(rowIndex);
+      setGliderPreviewCol(colIndex);
+    }
+  };
+
+  const handleBlockLeave = () => {
+    if (!gameStart) {
+      setGliderPreviewRow(null);
+      setGliderPreviewCol(null);
     }
   };
 
@@ -132,7 +160,7 @@ function App() {
   }, [countLiveNeighbors, down, top]);
 
   const updateFPS = useCallback(() => {
-    fpsRef.current = Math.round((speed));
+    fpsRef.current = Math.round(speed);
   }, [speed]);
 
   const updateLivingCells = useCallback(() => {
@@ -144,7 +172,7 @@ function App() {
       if (gameStart) {
         setGrid((prevGrid) => computeNextGeneration(prevGrid));
       }
-    }, (1000 / speed));
+    }, 1000 / speed);
 
     return () => clearInterval(interval);
   }, [computeNextGeneration, gameStart, speed]);
@@ -154,26 +182,40 @@ function App() {
     updateLivingCells();
   }, [updateFPS, updateLivingCells]);
 
-  
   return (
     <div className="body">
-      <div className="grid">
-        {grid.map((row, rowIndex) => (
-          <div key={rowIndex} className="row">
-            {row.map((col, colIndex) => (
-              <div
-                key={colIndex}
-                className="block"
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  backgroundColor: col === 1 ? 'black' : 'white',
-                }}
-                onClick={() => handleBlockClick(rowIndex, colIndex)}
-              ></div>
-            ))}
-          </div>
-        ))}
+      <div className='title-wrapper'>
+        <h1 className='title'>Conway's - Game Of Life</h1>
+      </div>
+      <div className="grid-wrapper">
+        <div className='grid'>
+          {grid.map((row, rowIndex) => (
+            <div key={rowIndex} className="row">
+              {row.map((col, colIndex) => (
+                <div
+                  key={colIndex}
+                  className="block"
+                  style={{
+                    width: '10px',
+                    height: '10px',
+                    backgroundColor: col === 1 ? 'white' : 'black',
+                    opacity:
+                      gliderPreviewRow !== null &&
+                      rowIndex >= gliderPreviewRow &&
+                      rowIndex < gliderPreviewRow + gliderPattern.length &&
+                      colIndex >= gliderPreviewCol &&
+                      colIndex < gliderPreviewCol + gliderPattern[0].length
+                        ? '0.5'
+                        : '1',
+                  }}
+                  onClick={() => handleBlockClick(rowIndex, colIndex)}
+                  onMouseEnter={() => handleBlockHover(rowIndex, colIndex)}
+                  onMouseLeave={handleBlockLeave}
+                ></div>
+              ))}
+            </div>
+          ))}
+        </div>
         <div className="controller-wrapper">
           <div className="slider-wrapper">
             Speed
@@ -200,14 +242,16 @@ function App() {
             <button className="GameStartButton" onClick={handleGameStart}>
               {gameStart ? 'Stop' : 'Start'}
             </button>
+            <button className='Test' onClick={() => setSelectedOption(selectedOption === 'Block' ? 'Glider' : 'Block')}>
+              {selectedOption === 'Block' ? 'Glider Selector' : 'Block Selector'}
+            </button>
           </div>
-          
         </div>
         <video id="transparentVideo" autoPlay loop src={video} muted>
         </video>
       </div>
     </div>
   );
-}
+};
 
 export default App;

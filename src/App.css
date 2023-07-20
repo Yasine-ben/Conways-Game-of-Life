@@ -1,6 +1,13 @@
-body{
+body {
   background-color: black;
 }
+
+.title {
+  color: white;
+}
+
+.title-wrapper {}
+
 .grid {
   display: flex;
   flex-direction: column;
@@ -20,19 +27,38 @@ body{
   /* border: 1px solid black; */
 }
 
-.body{
+.body {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
 .grid {
   display: flex;
-  grid-template-columns: repeat(12, 10px); /* Adjust the number of columns as needed */
-  grid-template-rows: repeat(12, 10px); /* Adjust the number of rows as needed */
-  gap: 1px; /* Adjust the gap between blocks as needed */
+  grid-template-columns: repeat(12, 10px);
+  /* Adjust the number of columns as needed */
+  grid-template-rows: repeat(12, 10px);
+  /* Adjust the number of rows as needed */
+  gap: 1px;
+  /* Adjust the gap between blocks as needed */
   border: 5px solid white;
+  background-color: black;
   /* box-shadow: 0px 50px 4px rgba(0,0,0,0.5); */
+  margin: 0;
+  justify-self: center;
+  align-self: center;
+}
+
+.grid:hover {
+  background-color: white;
+}
+
+.grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  justify-content: center;
 }
 
 .block {
@@ -40,18 +66,19 @@ body{
   /* border: 1px solid black; */
 }
 
-.controller-wrapper{
+.controller-wrapper {
   display: flex;
-  flex-direction:row;
+  flex-direction: row;
   justify-content: space-between;
   width: 100%;
 }
-.buttons-wrapper{
+
+.buttons-wrapper {
   display: flex;
   flex-direction: row;
 }
 
-.ClearGrid{
+.ClearGrid {
   width: 80px;
   height: 30px;
   display: flex;
@@ -61,7 +88,7 @@ body{
   justify-content: center;
 }
 
-.GameStartButton{
+.GameStartButton {
   width: 80px;
   height: 30px;
   display: flex;
@@ -71,8 +98,8 @@ body{
   justify-content: center;
 }
 
-.RandomizeGrid{
-    width: 80px;
+.Test {
+  width: 80px;
   height: 30px;
   display: flex;
   align-self: flex-end;
@@ -81,25 +108,33 @@ body{
   justify-content: center;
 }
 
-.slider-wrapper{
+.RandomizeGrid {
+  width: 80px;
+  height: 30px;
+  display: flex;
+  align-self: flex-end;
+  margin-right: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.computationSpeedSlider{
-  
+.computationSpeedSlider {}
+
+.fps-counter {
+  color: white;
 }
 
-.fps-counter{
-  color:white;
+.living-cells-counter {
+  color: white;
 }
 
-.living-cells-counter{
-  color:white;
-}
-
-#transparentVideo{
+#transparentVideo {
   width: 500px;
 }
