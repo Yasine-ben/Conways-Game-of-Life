@@ -17,7 +17,7 @@ body {
 
 .row {
   display: flex;
-  gap: 1px;
+  gap: 0px;
 }
 
 .block {
@@ -40,7 +40,7 @@ body {
   /* Adjust the number of columns as needed */
   grid-template-rows: repeat(12, 10px);
   /* Adjust the number of rows as needed */
-  gap: 1px;
+  gap: 0px;
   /* Adjust the gap between blocks as needed */
   border: 5px solid white;
   background-color: black;

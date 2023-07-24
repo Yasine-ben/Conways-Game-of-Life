@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import produce from 'immer';
-import video from './video.webm';
+// import video from './video.webm';
 
 const directions = [
   [-1, -1], // top left
@@ -19,6 +19,10 @@ const gliderPattern = [
   [0, 0, 1],
   [1, 1, 1],
 ];
+
+const singleBlockPattern = [
+  [1]
+]
 
 const LWSS = [
 
@@ -108,13 +112,9 @@ const App = () => {
   const handleBlockClick = (rowIndex, colIndex) => {
     if (!gameStart) {
       const newGrid = produce(grid, (draftGrid) => {
-        if (selectedOption === 'Block') {
-          draftGrid[rowIndex][colIndex] = 1 - draftGrid[rowIndex][colIndex];
-        } else {
-          for (let i = 0; i < gliderPattern.length; i++) {
-            for (let j = 0; j < gliderPattern[i].length; j++) {
-              draftGrid[rowIndex + i][colIndex + j] = gliderPattern[i][j];
-            }
+        for (let i = 0; i < gliderPattern.length; i++) {
+          for (let j = 0; j < gliderPattern[i].length; j++) {
+            draftGrid[rowIndex + i][colIndex + j] = selectedOption === 'Glider' ? gliderPattern[i][j] : 1 - draftGrid[rowIndex + i][colIndex + j];
           }
         }
       });
@@ -122,20 +122,12 @@ const App = () => {
     }
   };
 
-
-
   const handleBlockHover = (rowIndex, colIndex) => {
     if (!gameStart) {
-      if (selectedOption === 'Glider') {
-        setGliderPreviewRow(rowIndex);
-        setGliderPreviewCol(colIndex);
-      } else {
-        setGliderPreviewRow(null);
-        setGliderPreviewCol(null);
-      }
+      setGliderPreviewRow(rowIndex);
+      setGliderPreviewCol(colIndex);
     }
   };
-
 
   const handleBlockLeave = () => {
     if (!gameStart) {
@@ -143,7 +135,6 @@ const App = () => {
       setGliderPreviewCol(null);
     }
   };
-
 
   const handleGameStart = () => {
     setGameStart((prevGameStart) => !prevGameStart);
@@ -278,7 +269,8 @@ const App = () => {
             </button>
           </div>
         </div>
-        {/* <video id="transparentVideo" autoPlay loop src={video} muted> </video> */}
+        {/* <video id="transparentVideo" autoPlay loop src={video} muted>
+        </video> */}
       </div>
     </div>
   );
