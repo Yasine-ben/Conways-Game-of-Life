@@ -17,7 +17,7 @@ body {
 
 .row {
   display: flex;
-  gap: 0px;
+  gap: 1px;
 }
 
 .block {
@@ -40,7 +40,7 @@ body {
   /* Adjust the number of columns as needed */
   grid-template-rows: repeat(12, 10px);
   /* Adjust the number of rows as needed */
-  gap: 0px;
+  gap: 1px;
   /* Adjust the gap between blocks as needed */
   border: 5px solid white;
   background-color: black;
@@ -75,7 +75,9 @@ body {
 
 .buttons-wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  border: 2px solid white;
+  justify-content: center;
 }
 
 .ClearGrid {

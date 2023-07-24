@@ -20,21 +20,21 @@ const gliderPattern = [
   [1, 1, 1],
 ];
 
-const singleBlockPattern = [
-  [1]
-]
+// const singleBlockPattern = [
+//   [1]
+// ]
 
-const LWSS = [
+// const LWSS = [
 
-]
+// ]
 
-const MWSS = [
+// const MWSS = [
 
-]
+// ]
 
-const HWSS = [
+// const HWSS = [
 
-]
+// ]
 
 // add total cycle counter
 // add diff options for patterns
@@ -48,7 +48,9 @@ const App = () => {
   const down = 50;
   const initialSpeed = 5;
 
-  const [selectedOption, setSelectedOption] = useState('Default');
+  const [selectedOption, setSelectedOption] = useState('Block');
+  const [singleBlockPreview, setSingleBlockPreview] = useState(null);
+
 
   const countLiveNeighbors = useCallback((currentGrid, row, col) => {
     let neighborCount = 0;
@@ -112,10 +114,14 @@ const App = () => {
   const handleBlockClick = (rowIndex, colIndex) => {
     if (!gameStart) {
       const newGrid = produce(grid, (draftGrid) => {
-        for (let i = 0; i < gliderPattern.length; i++) {
-          for (let j = 0; j < gliderPattern[i].length; j++) {
-            draftGrid[rowIndex + i][colIndex + j] = selectedOption === 'Glider' ? gliderPattern[i][j] : 1 - draftGrid[rowIndex + i][colIndex + j];
+        if (selectedOption === 'Glider') {
+          for (let i = 0; i < gliderPattern.length; i++) {
+            for (let j = 0; j < gliderPattern[i].length; j++) {
+              draftGrid[rowIndex + i][colIndex + j] = selectedOption === 'Glider' ? gliderPattern[i][j] : 1 - draftGrid[rowIndex + i][colIndex + j];
+            }
           }
+        } else if (selectedOption === 'Block') {
+          draftGrid[rowIndex][colIndex] = 1
         }
       });
       setGrid(newGrid);
@@ -124,8 +130,15 @@ const App = () => {
 
   const handleBlockHover = (rowIndex, colIndex) => {
     if (!gameStart) {
-      setGliderPreviewRow(rowIndex);
-      setGliderPreviewCol(colIndex);
+      if (selectedOption === 'Block') {
+        setSingleBlockPreview({ row: rowIndex, col: colIndex });
+        setGliderPreviewRow(null); // Clear glider preview
+        setGliderPreviewCol(null);
+      } else if (selectedOption === 'Glider') {
+        setGliderPreviewRow(rowIndex);
+        setGliderPreviewCol(colIndex);
+      }
+
     }
   };
 
@@ -218,15 +231,17 @@ const App = () => {
                   key={colIndex}
                   className="block"
                   style={{
-                    width: '10px',
-                    height: '10px',
+
                     backgroundColor: col === 1 ? 'white' : 'black',
                     opacity:
-                      gliderPreviewRow !== null &&
+                      (gliderPreviewRow !== null &&
                         rowIndex >= gliderPreviewRow &&
                         rowIndex < gliderPreviewRow + gliderPattern.length &&
                         colIndex >= gliderPreviewCol &&
-                        colIndex < gliderPreviewCol + gliderPattern[0].length
+                        colIndex < gliderPreviewCol + gliderPattern[0].length) ||
+                        (singleBlockPreview !== null &&
+                          rowIndex === singleBlockPreview.rowIndex &&
+                          colIndex === singleBlockPreview.colIndex)
                         ? '0.5'
                         : '1',
                   }}
@@ -255,16 +270,16 @@ const App = () => {
             <div className="living-cells-counter">Living Cells: {livingCellsRef.current}</div>
           </div>
           <div className="buttons-wrapper">
-            <button className="ClearGrid" onClick={handleClearGrid}>
-              Clear
-            </button>
-            <button className="RandomizeGrid" onClick={handleRandomizeGrid}>
-              Randomize
-            </button>
-            <button className="GameStartButton" onClick={handleGameStart}>
+            <button className="Button" onClick={handleGameStart}>
               {gameStart ? 'Stop' : 'Start'}
             </button>
-            <button className='Test' onClick={() => setSelectedOption(selectedOption === 'Block' ? 'Glider' : 'Block')}>
+            <button className="Button" onClick={handleClearGrid}>
+              Clear
+            </button>
+            <button className="Button" onClick={handleRandomizeGrid}>
+              Randomize
+            </button>
+            <button className='Button' onClick={() => setSelectedOption(selectedOption === 'Block' ? 'Glider' : 'Block')}>
               {selectedOption === 'Block' ? 'Glider Selector' : 'Block Selector'}
             </button>
           </div>
