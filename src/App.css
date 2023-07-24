@@ -43,7 +43,7 @@ body {
   gap: 1px;
   /* Adjust the gap between blocks as needed */
   border: 5px solid white;
-  background-color: white;
+  background-color: black;
   /* box-shadow: 0px 50px 4px rgba(0,0,0,0.5); */
   margin: 0;
   justify-self: center;

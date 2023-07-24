@@ -32,6 +32,12 @@ const HWSS = [
 
 ]
 
+// add total cycle counter
+// add diff options for patterns
+// reorder buttons
+// ethan stays
+// make a splash screen 
+
 
 const App = () => {
   const top = 60;
@@ -102,9 +108,13 @@ const App = () => {
   const handleBlockClick = (rowIndex, colIndex) => {
     if (!gameStart) {
       const newGrid = produce(grid, (draftGrid) => {
-        for (let i = 0; i < gliderPattern.length; i++) {
-          for (let j = 0; j < gliderPattern[i].length; j++) {
-            draftGrid[rowIndex + i][colIndex + j] = selectedOption === 'Glider' ? gliderPattern[i][j] : 1 - draftGrid[rowIndex + i][colIndex + j];
+        if (selectedOption === 'Block') {
+          draftGrid[rowIndex][colIndex] = 1 - draftGrid[rowIndex][colIndex];
+        } else {
+          for (let i = 0; i < gliderPattern.length; i++) {
+            for (let j = 0; j < gliderPattern[i].length; j++) {
+              draftGrid[rowIndex + i][colIndex + j] = gliderPattern[i][j];
+            }
           }
         }
       });
@@ -112,12 +122,20 @@ const App = () => {
     }
   };
 
+
+
   const handleBlockHover = (rowIndex, colIndex) => {
     if (!gameStart) {
-      setGliderPreviewRow(rowIndex);
-      setGliderPreviewCol(colIndex);
+      if (selectedOption === 'Glider') {
+        setGliderPreviewRow(rowIndex);
+        setGliderPreviewCol(colIndex);
+      } else {
+        setGliderPreviewRow(null);
+        setGliderPreviewCol(null);
+      }
     }
   };
+
 
   const handleBlockLeave = () => {
     if (!gameStart) {
@@ -126,16 +144,16 @@ const App = () => {
     }
   };
 
+
   const handleGameStart = () => {
     setGameStart((prevGameStart) => !prevGameStart);
   };
 
   const handleClearGrid = () => {
-    if (!gameStart) {
-      const newGrid = createGrid(top, down);
-      setGrid(newGrid);
-      livingCellsRef.current = 0;
-    }
+    setGameStart(false)
+    const newGrid = createGrid(top, down);
+    setGrid(newGrid);
+    livingCellsRef.current = 0;
   };
 
   const handleRandomizeGrid = () => {
@@ -214,10 +232,10 @@ const App = () => {
                     backgroundColor: col === 1 ? 'white' : 'black',
                     opacity:
                       gliderPreviewRow !== null &&
-                      rowIndex >= gliderPreviewRow &&
-                      rowIndex < gliderPreviewRow + gliderPattern.length &&
-                      colIndex >= gliderPreviewCol &&
-                      colIndex < gliderPreviewCol + gliderPattern[0].length
+                        rowIndex >= gliderPreviewRow &&
+                        rowIndex < gliderPreviewRow + gliderPattern.length &&
+                        colIndex >= gliderPreviewCol &&
+                        colIndex < gliderPreviewCol + gliderPattern[0].length
                         ? '0.5'
                         : '1',
                   }}
@@ -260,8 +278,7 @@ const App = () => {
             </button>
           </div>
         </div>
-        <video id="transparentVideo" autoPlay loop src={video} muted>
-        </video>
+        {/* <video id="transparentVideo" autoPlay loop src={video} muted> </video> */}
       </div>
     </div>
   );
