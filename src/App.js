@@ -18,7 +18,7 @@ const GLIDER_PATTERN = [
 
 const TOP = 60;
 const DOWN = 50;
-const INITIAL_SPEED = 5;
+const INITIAL_SPEED = 10;
 
 const createGrid = (width, height) => {
   const grid = [];
@@ -66,8 +66,8 @@ const App = () => {
   const [gliderPreviewRow, setGliderPreviewRow] = useState(null);
   const [gliderPreviewCol, setGliderPreviewCol] = useState(null);
   const [singleBlockPreview, setSingleBlockPreview] = useState({ rowIndex: null, colIndex: null });
-  const [gridBackgroundColor, setGridBackgroundColor] = useState('green')
-  const [cellColor, setCellColor] = useState('black')
+  const [gridBackgroundColor, setGridBackgroundColor] = useState("#000000")
+  const [cellColor, setCellColor] = useState("#FFFFFF")
   const [previewGridColor, setPreviewGridColor] = useState('black')
 
   const fpsRef = useRef(0);
