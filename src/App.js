@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import produce from 'immer';
+import monitor from './CommodoreDOS.png'
 
 
 const DIRECTIONS = [
@@ -31,7 +32,33 @@ const createGrid = (width, height) => {
   return grid;
 };
 
+
+
 const App = () => {
+
+  const changeColor = (scheme) => {
+    console.log(scheme)
+    switch (parseInt(scheme)) {
+      case (1):
+        setCellColor("#FFFFFF")
+        setGridBackgroundColor("#000000")
+        break;
+      case (2):
+        setCellColor("#FFB000")
+        setGridBackgroundColor("#000000")
+        break;
+      case (3):
+        setCellColor("#00FF00")
+        setGridBackgroundColor("#000000")
+        break;
+      case (4):
+        setCellColor("#0000FF")
+        setGridBackgroundColor("#000000")
+        break;
+    }
+  }
+
+
   const [selectedOption, setSelectedOption] = useState('Block');
   const [speed, setSpeed] = useState(INITIAL_SPEED);
   const [grid, setGrid] = useState(() => createGrid(TOP, DOWN));
@@ -39,6 +66,9 @@ const App = () => {
   const [gliderPreviewRow, setGliderPreviewRow] = useState(null);
   const [gliderPreviewCol, setGliderPreviewCol] = useState(null);
   const [singleBlockPreview, setSingleBlockPreview] = useState({ rowIndex: null, colIndex: null });
+  const [gridBackgroundColor, setGridBackgroundColor] = useState('green')
+  const [cellColor, setCellColor] = useState('black')
+  const [previewGridColor, setPreviewGridColor] = useState('black')
 
   const fpsRef = useRef(0);
   const livingCellsRef = useRef(0);
@@ -178,11 +208,13 @@ const App = () => {
 
   return (
     <div className="body">
-      <div className='title-wrapper'>
+      <img className='Monitor' src={monitor}/>
+      <div className="overlay"></div>
+      {/* <div className='title-wrapper'>
         <h1 className='title'>Conway's - Game Of Life</h1>
-      </div>
+      </div> */}
       <div className="grid-wrapper">
-        <div className='grid'>
+        <div className='grid' style={{backgroundColor:previewGridColor}}>
           {grid.map((row, rowIndex) => (
             <div key={rowIndex} className="row">
               {row.map((col, colIndex) => (
@@ -190,7 +222,7 @@ const App = () => {
                   key={colIndex}
                   className="block"
                   style={{
-                    backgroundColor: col === 1 ? 'white' : 'black',
+                    backgroundColor: col === 1 ? cellColor : gridBackgroundColor,
                     opacity: (gliderPreviewRow !== null &&
                       rowIndex >= gliderPreviewRow &&
                       rowIndex < gliderPreviewRow + GLIDER_PATTERN.length &&
@@ -203,8 +235,18 @@ const App = () => {
                       : '1',
                   }}
                   onClick={() => handleBlockClick(rowIndex, colIndex)}
-                  onMouseEnter={() => handleBlockHover(rowIndex, colIndex)}
-                  onMouseLeave={handleBlockLeave}
+                  onMouseEnter={() => {
+                    handleBlockHover(rowIndex, colIndex);
+                    setPreviewGridColor(cellColor)
+                    // Additional actions go here
+                    
+                  }}
+                  onMouseLeave={() => {
+                    setPreviewGridColor('black')
+                    handleBlockLeave()
+                    // Additional actions go here
+                    
+                  }}
                 ></div>
               ))}
             </div>
@@ -212,16 +254,23 @@ const App = () => {
         </div>
         <div className="controller-wrapper">
           <div className="buttons-wrapper">
-            <button className="Button GameStartButton" onClick={handleGameStart}>{gameStart ? 'Stop' : 'Start'}</button>
-            <button className="Button ClearGrid" onClick={handleClearGrid}>Clear</button>
-            <button className="Button RandomizeGrid" onClick={handleRandomizeGrid}>Randomize</button>
+            <button className="Button GameStartButton" style={{"backgroundColor":cellColor, "color":gridBackgroundColor}} onClick={handleGameStart}>{gameStart ? 'Stop' : 'Start'}</button>
+            <button className="Button ClearGrid" style={{"backgroundColor":cellColor, "color":gridBackgroundColor}} onClick={handleClearGrid}>Clear</button>
+            <button className="Button RandomizeGrid" style={{"backgroundColor":cellColor, "color":gridBackgroundColor}} onClick={handleRandomizeGrid}>Randomize</button>
           </div>
           <div className='counters-wrapper'>
-            <label className="living-cells-counter">Living Cells: {livingCellsRef.current}</label>
+            <label className="living-cells-counter" style={{"color":cellColor}}>Living Cells: {livingCellsRef.current}</label>
+            <select className="colors" style={{"backgroundColor":cellColor, "color":gridBackgroundColor}} onChange={(e) => changeColor(e.target.value)}>
+              <option value="1" >Apple II Series</option> //black and white
+              <option value="2" >Amber</option> //amber and black
+              <option value="3" >Commodore PET</option> //green and black
+              <option value="4" >Commodore 64</option> //blue and black
+            </select>
           </div>
-          <div className="slider-wrapper">            
-            <label className="fps-counter">FPS: {fpsRef.current}</label>
-            <input className="computationSpeedSlider" type="range" min="1" max="60" value={speed} onChange={(e) => setSpeed(e.target.value)} />
+          <div className="slider-wrapper">
+            <label className="fps-counter" style={{"color":cellColor}}>FPS: {fpsRef.current}</label>
+            <input className="computationSpeedSlider" style={{"color":cellColor}} type="range" min="1" max="60" value={speed} onChange={(e) => setSpeed(e.target.value)} />
+            
           </div>
         </div>
       </div>
