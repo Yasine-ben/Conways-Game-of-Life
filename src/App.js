@@ -1,25 +1,22 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import produce from 'immer';
-import monitor from './CommodoreDOS.png'
+import monitor from './CommodoreDOS.png' //Crt monitor Img overlay
 
 
+//Preset neighbour grid locations to aid living neighbour detection function (TOP,DOWN,LEFT,RIGHT,TOP-RIGHT,BOTTOM-RIGHT,TOP-LEFT,BOTTOM-LEFT)
 const DIRECTIONS = [
   [-1, -1], [-1, 0], [-1, 1],
   [0, -1], [0, 1],
   [1, -1], [1, 0], [1, 1],
 ];
 
-const GLIDER_PATTERN = [
-  [0, 1, 0],
-  [0, 0, 1],
-  [1, 1, 1],
-];
+//Default values for Game size and speed ( Top = X || Down = Y || Speed = FPS)  
+const TOP = 60; //X
+const DOWN = 50; //Y
+const INITIAL_SPEED = 10; //Itteration speed
 
-const TOP = 60;
-const DOWN = 50;
-const INITIAL_SPEED = 10;
-
+//Creates Game grid based on Top(X)/Down(Y) Values
 const createGrid = (width, height) => {
   const grid = [];
   for (let row = 0; row < height; row++) {
@@ -32,47 +29,45 @@ const createGrid = (width, height) => {
   return grid;
 };
 
-
-
 const App = () => {
+  
 
-  const changeColor = (scheme) => {
-    console.log(scheme)
-    switch (parseInt(scheme)) {
-      case (1):
-        setCellColor("#FFFFFF")
-        setGridBackgroundColor("#000000")
-        break;
-      case (2):
-        setCellColor("#FFB000")
-        setGridBackgroundColor("#000000")
-        break;
-      case (3):
-        setCellColor("#00FF00")
-        setGridBackgroundColor("#000000")
-        break;
-      case (4):
-        setCellColor("#0000FF")
-        setGridBackgroundColor("#000000")
-        break;
-    }
-  }
-
-
-  const [selectedOption, setSelectedOption] = useState('Block');
+  const [selectedOption, setSelectedOption] = useState('Block'); 
   const [speed, setSpeed] = useState(INITIAL_SPEED);
   const [grid, setGrid] = useState(() => createGrid(TOP, DOWN));
   const [gameStart, setGameStart] = useState(false);
-  const [gliderPreviewRow, setGliderPreviewRow] = useState(null);
-  const [gliderPreviewCol, setGliderPreviewCol] = useState(null);
-  const [singleBlockPreview, setSingleBlockPreview] = useState({ rowIndex: null, colIndex: null });
   const [gridBackgroundColor, setGridBackgroundColor] = useState("#000000")
   const [cellColor, setCellColor] = useState("#FFFFFF")
   const [previewGridColor, setPreviewGridColor] = useState('black')
-
+  
   const fpsRef = useRef(0);
   const livingCellsRef = useRef(0);
-
+  
+  //App color scheme switch case
+  const changeColor = (scheme) => {
+    console.log(scheme)
+    switch (parseInt(scheme)) {
+      case (1): //black and white
+        setCellColor("#FFFFFF")
+        setGridBackgroundColor("#000000")
+        break;
+      case (2): //amber and black
+        setCellColor("#FFB000")
+        setGridBackgroundColor("#000000")
+        break;
+      case (3): //green and black
+        setCellColor("#00FF00")
+        setGridBackgroundColor("#000000")
+        break;
+      case (4): //blue and black
+        setCellColor("#0000FF")
+        setGridBackgroundColor("#000000")
+        break;
+      //add additional color schemes below 
+    }
+  }
+  
+  //Returns total count of live cells adjacent to current cell
   const countLiveNeighbors = useCallback((currentGrid, row, col) => {
     let neighborCount = 0;
     for (let i = 0; i < DIRECTIONS.length; i++) {
@@ -90,6 +85,7 @@ const App = () => {
     return neighborCount;
   }, [DOWN, TOP]);
 
+  //Returns living cell count in grid
   const countLivingCells = useCallback((currentGrid) => {
     let count = 0;
     for (let row = 0; row < DOWN; row++) {
@@ -102,16 +98,11 @@ const App = () => {
     return count;
   }, [DOWN, TOP]);
 
+  //Logic to allow user to activate/deactive cells on click
   const handleBlockClick = (rowIndex, colIndex) => {
     if (!gameStart) {
       const newGrid = produce(grid, (draftGrid) => {
-        if (selectedOption === 'Glider') {
-          for (let i = 0; i < GLIDER_PATTERN.length; i++) {
-            for (let j = 0; j < GLIDER_PATTERN[i].length; j++) {
-              draftGrid[rowIndex + i][colIndex + j] = selectedOption === 'Glider' ? GLIDER_PATTERN[i][j] : 1 - draftGrid[rowIndex + i][colIndex + j];
-            }
-          }
-        } else if (selectedOption === 'Block') {
+        if (selectedOption === 'Block') {
           draftGrid[rowIndex][colIndex] = 1;
         }
       });
@@ -119,30 +110,13 @@ const App = () => {
     }
   };
 
-  const handleBlockHover = (rowIndex, colIndex) => {
-    if (!gameStart) {
-      if (selectedOption === 'Block') {
-        setSingleBlockPreview({ row: rowIndex, col: colIndex });
-        setGliderPreviewRow(null);
-        setGliderPreviewCol(null);
-      } else if (selectedOption === 'Glider') {
-        setGliderPreviewRow(rowIndex);
-        setGliderPreviewCol(colIndex);
-      }
-    }
-  };
 
-  const handleBlockLeave = () => {
-    if (!gameStart) {
-      setGliderPreviewRow(null);
-      setGliderPreviewCol(null);
-    }
-  };
-
+  //Game start toggle
   const handleGameStart = () => {
     setGameStart((prevGameStart) => !prevGameStart);
   };
 
+  //Returns grid to default state
   const handleClearGrid = () => {
     setGameStart(false);
     const newGrid = createGrid(TOP, DOWN);
@@ -150,6 +124,7 @@ const App = () => {
     livingCellsRef.current = 0;
   };
 
+  //Adds randomized living cells to grid 
   const handleRandomizeGrid = () => {
     if (!gameStart) {
       const newGrid = produce(grid, (draftGrid) => {
@@ -164,6 +139,7 @@ const App = () => {
     }
   };
 
+  //Computes next generation of grid based on the rules of Conway's Game of Life.
   const computeNextGeneration = useCallback((currentGrid) => {
     const newGrid = produce(currentGrid, (draftGrid) => {
       for (let row = 0; row < DOWN; row++) {
@@ -208,13 +184,10 @@ const App = () => {
 
   return (
     <div className="body">
-      <img className='Monitor' src={monitor}/>
+      <img className='Monitor' src={monitor} />
       <div className="overlay"></div>
-      {/* <div className='title-wrapper'>
-        <h1 className='title'>Conway's - Game Of Life</h1>
-      </div> */}
       <div className="grid-wrapper">
-        <div className='grid' style={{backgroundColor:previewGridColor}}>
+        <div className='grid' style={{ backgroundColor: previewGridColor }}>
           {grid.map((row, rowIndex) => (
             <div key={rowIndex} className="row">
               {row.map((col, colIndex) => (
@@ -223,54 +196,47 @@ const App = () => {
                   className="block"
                   style={{
                     backgroundColor: col === 1 ? cellColor : gridBackgroundColor,
-                    opacity: (gliderPreviewRow !== null &&
-                      rowIndex >= gliderPreviewRow &&
-                      rowIndex < gliderPreviewRow + GLIDER_PATTERN.length &&
-                      colIndex >= gliderPreviewCol &&
-                      colIndex < gliderPreviewCol + GLIDER_PATTERN[0].length) ||
-                      (singleBlockPreview.rowIndex !== null &&
-                        rowIndex === singleBlockPreview.rowIndex &&
-                        colIndex === singleBlockPreview.colIndex)
-                      ? '0.5'
-                      : '1',
+                    opacity: '1',
                   }}
+                  //When user hovers over grid, highlight grid
                   onClick={() => handleBlockClick(rowIndex, colIndex)}
                   onMouseEnter={() => {
-                    handleBlockHover(rowIndex, colIndex);
                     setPreviewGridColor(cellColor)
-                    // Additional actions go here
-                    
                   }}
+                  //when mouse leaves cell, un-highlight grid
                   onMouseLeave={() => {
                     setPreviewGridColor('black')
-                    handleBlockLeave()
-                    // Additional actions go here
-                    
                   }}
                 ></div>
               ))}
             </div>
           ))}
         </div>
+
+        {/*Buttons*/}
         <div className="controller-wrapper">
           <div className="buttons-wrapper">
-            <button className="Button GameStartButton" style={{"backgroundColor":cellColor, "color":gridBackgroundColor}} onClick={handleGameStart}>{gameStart ? 'Stop' : 'Start'}</button>
-            <button className="Button ClearGrid" style={{"backgroundColor":cellColor, "color":gridBackgroundColor}} onClick={handleClearGrid}>Clear</button>
-            <button className="Button RandomizeGrid" style={{"backgroundColor":cellColor, "color":gridBackgroundColor}} onClick={handleRandomizeGrid}>Randomize</button>
+            <button className="Button GameStartButton" style={{ "backgroundColor": cellColor, "color": gridBackgroundColor }} onClick={handleGameStart}>{gameStart ? 'Stop' : 'Start'}</button>
+            <button className="Button ClearGrid" style={{ "backgroundColor": cellColor, "color": gridBackgroundColor }} onClick={handleClearGrid}>Clear</button>
+            <button className="Button RandomizeGrid" style={{ "backgroundColor": cellColor, "color": gridBackgroundColor }} onClick={handleRandomizeGrid}>Randomize</button>
           </div>
+
+          {/*Color selector & Living Cell Counter*/}
           <div className='counters-wrapper'>
-            <label className="living-cells-counter" style={{"color":cellColor}}>Living Cells: {livingCellsRef.current}</label>
-            <select className="colors" style={{"backgroundColor":cellColor, "color":gridBackgroundColor}} onChange={(e) => changeColor(e.target.value)}>
-              <option value="1" >Apple II Series</option> //black and white
-              <option value="2" >Amber</option> //amber and black
-              <option value="3" >Commodore PET</option> //green and black
-              <option value="4" >Commodore 64</option> //blue and black
+            <label className="living-cells-counter" style={{ "color": cellColor }}>Living Cells: {livingCellsRef.current}</label>
+            <select className="colors" style={{ "backgroundColor": cellColor, "color": gridBackgroundColor }} onChange={(e) => changeColor(e.target.value)}>
+              <option value="1" >Apple II Series</option> {/*black and white*/}
+              <option value="2" >Amber</option> {/*amber and black*/}
+              <option value="3" >Commodore PET</option> {/*green and black*/}
+              <option value="4" >Commodore 64</option> {/*blue and black*/}
             </select>
           </div>
-          <div className="slider-wrapper">
-            <label className="fps-counter" style={{"color":cellColor}}>FPS: {fpsRef.current}</label>
-            <input className="computationSpeedSlider" style={{"color":cellColor}} type="range" min="1" max="60" value={speed} onChange={(e) => setSpeed(e.target.value)} />
-            
+          
+          {/*Fps counter*/}
+          <div className="slider-wrapper"> 
+            <label className="fps-counter" style={{ "color": cellColor }}>FPS: {fpsRef.current}</label>
+            <input className="computationSpeedSlider" style={{ "color": cellColor }} type="range" min="1" max="60" value={speed} onChange={(e) => setSpeed(e.target.value)} />
+
           </div>
         </div>
       </div>
@@ -279,3 +245,11 @@ const App = () => {
 };
 
 export default App;
+
+
+//(NOTE TO SELF) Future additions:
+// -presets for users to place premade glider patterns
+// -Intro to teach users how to play
+// -True crt effect to grid cells
+
+
